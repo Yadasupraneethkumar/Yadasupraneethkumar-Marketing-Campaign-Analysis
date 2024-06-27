@@ -1,0 +1,127 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+
+# Load the dataset
+url = 'C:/Users/Praneeth Kumar/Data Science/bank-additional-full.csv'
+df = pd.read_csv(url, sep=';')
+
+# Display the first few rows of the dataset
+print("Dataset Preview:")
+print(df.head())
+
+# Data Cleaning and Preprocessing
+print("\nData Cleaning and Preprocessing:")
+
+# Check for missing values
+print("Missing Values:")
+print(df.isnull().sum())
+
+# Check for duplicate records
+print("Duplicate Records:")
+print(df.duplicated().sum())
+
+# Drop duplicate records if any
+df.drop_duplicates(inplace=True)
+
+# Convert data types if necessary
+# (No conversions needed in this dataset)
+
+# Display the cleaned data
+print("\nData Info:")
+print(df.info())
+
+# Exploratory Data Analysis (EDA)
+print("\nExploratory Data Analysis (EDA):")
+
+# Descriptive statistics
+print("\nDescriptive Statistics:")
+print(df.describe())
+
+# Visualize the distribution of numerical features
+plt.figure(figsize=(8, 6))
+sns.histplot(df['age'], kde=True)
+plt.title('Age Distribution')
+plt.show()
+
+# Visualize the relationship between features
+plt.figure(figsize=(10, 8))
+sns.pairplot(df[['age', 'duration', 'campaign', 'y']])
+plt.show()
+
+# Analyze campaign response rates
+response_rate = df['y'].value_counts(normalize=True) * 100
+print("\nCampaign Response Rates:")
+print(response_rate)
+
+# Customer Segmentation
+print("\nCustomer Segmentation:")
+
+# Select features for clustering
+features = df[['age', 'duration', 'campaign']]
+
+# Standardize the features
+scaler = StandardScaler()
+scaled_features = scaler.fit_transform(features)
+
+# Apply K-Means clustering
+kmeans = KMeans(n_clusters=3, random_state=42)
+df['Cluster'] = kmeans.fit_predict(scaled_features)
+
+# Visualize the clusters
+plt.figure(figsize=(10, 8))
+plt.scatter(df['age'], df['duration'], c=df['Cluster'], cmap='viridis')
+plt.xlabel('Age')
+plt.ylabel('Duration')
+plt.title('Customer Segmentation')
+plt.show()
+
+# Predictive Modeling
+print("\nPredictive Modeling:")
+
+# Select features and target variable
+X = df[['age', 'duration', 'campaign']]
+y = df['y'].apply(lambda x: 1 if x == 'yes' else 0)
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Train a logistic regression model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+
+print("\nModel Performance:")
+print(f'Accuracy: {accuracy:.2f}')
+print(f'Precision: {precision:.2f}')
+print(f'Recall: {recall:.2f}')
+
+# Results and Insights
+print("\nResults and Insights:")
+
+# Summarize the findings
+print("Customer Segmentation Results:")
+print(df['Cluster'].value_counts())
+
+print("Predictive Model Performance:")
+print(f'Accuracy: {accuracy:.2f}')
+print(f'Precision: {precision:.2f}')
+print(f'Recall: {recall:.2f}')
+
+# Provide actionable insights
+print("\nActionable Insights:")
+print("1. Target Cluster 1 with higher campaign duration for premium products.")
+print("2. Improve campaign strategies for customers in Cluster 2 to increase response rates.")
